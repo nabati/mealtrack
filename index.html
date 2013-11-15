@@ -1,0 +1,65 @@
+<html>
+<head>
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container" ng-app="app">
+
+    <div ng-controller="FoodsController">
+        <div class="row">
+            <div class="col-md-9">
+                <input type="search" ng-model="searchText" class="form-control"
+                       ng-keydown="searchBarKeypress($event)" ng-change="changeFilter()"/>
+            </div>
+            <div class="col-md-3">
+                <input type="text" ng-model="weight" class="form-control" ng-keypress="addFoodToList($event)"/>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-6"><h2>Database</h2>
+                <table class="table table-condensed">
+                    <tr ng-repeat="food in foodTableViewModel.data"
+                        ng-class="{'alert-info':foodTableViewModel.isRowSelected($index)}">
+                        <td>{{food.Livsmedelsnamn}}</td>
+                        <td>{{food["Energi (kcal)(kcal)"]}}</td>
+                        <td>{{food["Protein(g)"]}}</td>
+                        <td>{{food["Fett(g)"]}}</td>
+                        <td>{{food["Kolhydrater(g)"]}}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="col-xs-6">
+                <h2>Selected Foods</h2>
+                <table class="table table-condensed col-md-6">
+                    <tr ng-repeat="food in personalFoodTableViewModel.data track by $index">
+                        <td>{{food.Livsmedelsnamn}}</td>
+                        <td>{{food["Energi (kcal)(kcal)"]}}</td>
+                        <td>{{food["Protein(g)"]}}</td>
+                        <td>{{food["Fett(g)"]}}</td>
+                        <td>{{food["Kolhydrater(g)"]}}</td>
+                    </tr>
+                    <tr>
+
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+
+    </div>
+
+</div>
+<script src="js/jquery-2.0.2.min.js"></script>
+<script src="js/bootstrap.js"></script>
+<script src="js/jquery.csv-0.71.js"></script>
+<script src="js/angular.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
