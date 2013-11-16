@@ -11,43 +11,95 @@
 <div class="container" ng-app="app">
 
     <div ng-controller="FoodsController">
-        <div class="row">
-            <div class="col-md-9">
-                <input type="search" ng-model="searchText" class="form-control"
-                       ng-keydown="searchBarKeypress($event)" ng-change="changeFilter()"/>
-            </div>
-            <div class="col-md-3">
-                <input type="text" ng-model="weight" class="form-control" ng-keypress="addFoodToList($event)"/>
-            </div>
-        </div>
 
         <div class="row">
-            <div class="col-xs-6"><h2>Database</h2>
+            <form ng-submit="addFoodToList()">
+                <div class="col-md-9">
+                    <input type="search" ng-model="searchText" class="form-control"
+                           ng-keydown="searchBarKeypress($event)" ng-change="changeFilter()"
+                           mt-focus="giveSearchBarFocus"/>
+                </div>
+                <div class="col-md-2">
+                    <input type="number" ng-model="weight" class="form-control"
+                           placeholder="100"/>
+                </div>
+                <div class="col-md-1">
+                    <input type="submit" class="btn btn-primary" value="Add to List"/>
+                </div>
+            </form>
+        </div>
+
+
+        <div class="row">
+            <div class="col-xs-6"><h2>Referenslista</h2>
                 <table class="table table-condensed">
-                    <tr ng-repeat="food in foodTableViewModel.data"
-                        ng-class="{'alert-info':foodTableViewModel.isRowSelected($index)}">
-                        <td>{{food.Livsmedelsnamn}}</td>
-                        <td>{{food["Energi (kcal)(kcal)"]}}</td>
-                        <td>{{food["Protein(g)"]}}</td>
-                        <td>{{food["Fett(g)"]}}</td>
-                        <td>{{food["Kolhydrater(g)"]}}</td>
+                    <thead>
+                    <tr>
+                        <th>Namn</th>
+                        <th>Vikt</th>
+                        <th>Kcal</th>
+                        <th>Protein</th>
+                        <th>Fett</th>
+                        <th>Kolhydrater</th>
                     </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="food in foodTableViewModel.tableModel.data"
+                        ng-class="{'alert-info':foodTableViewModel.isRowSelected($index)}">
+                        <td>{{food.name}}</td>
+                        <td>{{food.weight | number:1}}</td>
+                        <td>{{food.kcal | number:1}}</td>
+                        <td>{{food.protein | number:1}}</td>
+                        <td>{{food.fat | number:1}}</td>
+                        <td>{{food.carbs | number:1}}</td>
+                    </tr>
+                    </tbody>
                 </table>
             </div>
 
             <div class="col-xs-6">
-                <h2>Selected Foods</h2>
+                <h2>Valda livsmedel</h2>
                 <table class="table table-condensed col-md-6">
-                    <tr ng-repeat="food in personalFoodTableViewModel.data track by $index">
-                        <td>{{food.Livsmedelsnamn}}</td>
-                        <td>{{food["Energi (kcal)(kcal)"]}}</td>
-                        <td>{{food["Protein(g)"]}}</td>
-                        <td>{{food["Fett(g)"]}}</td>
-                        <td>{{food["Kolhydrater(g)"]}}</td>
-                    </tr>
+                    <thead>
                     <tr>
-
+                        <th>Namn</th>
+                        <th>Vikt</th>
+                        <th>Kcal</th>
+                        <th>Protein</th>
+                        <th>Fett</th>
+                        <th>Kolhydrater</th>
                     </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="food in personalFoodTableViewModel.tableModel.data track by $index">
+                        <td>{{food.name}}</td>
+                        <td>{{food.weight | number:1}}</td>
+                        <td>{{food.kcal | number:1}}</td>
+                        <td>{{food.protein | number:1}}</td>
+                        <td>{{food.fat | number:1}}</td>
+                        <td>{{food.carbs | number:1}}</td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td>Summa</td>
+                        <td>
+                            {{personalFoodTableViewModel.tableModel.getColumnSum("weight") | number:1}}
+                        </td>
+                        <td>
+                            {{personalFoodTableViewModel.tableModel.getColumnSum("kcal") | number:1}}
+                        </td>
+                        <td>
+                            {{personalFoodTableViewModel.tableModel.getColumnSum("protein") | number:1}}
+                        </td>
+                        <td>
+                            {{personalFoodTableViewModel.tableModel.getColumnSum("fat") | number:1}}
+                        </td>
+                        <td>
+                            {{personalFoodTableViewModel.tableModel.getColumnSum("carbs") | number:1}}
+                        </td>
+                    </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>
@@ -60,6 +112,7 @@
 <script src="js/bootstrap.js"></script>
 <script src="js/jquery.csv-0.71.js"></script>
 <script src="js/angular.js"></script>
+<script src="js/angular-locale_sv-se.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
