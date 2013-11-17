@@ -6,7 +6,7 @@ app.factory("FoodsFactory", ['$http', '$q', function ($http, $q) {
     // Check if parsed data is already available
     var foodsJson = localStorage.getItem("foodsJson");
 
-     if (foodsJson==null) {
+    if (foodsJson == null) {
         // Fetch data and parse
         console.info("No stored parsedFoods found");
         $http.get("resources/livsmedelsort.csv").then(function (response) {
@@ -51,7 +51,7 @@ function Food(name, weight, kcal, protein, fat, carbs) {
     this.carbs = carbs;
 }
 
-function FoodsController($scope, $timeout, FoodsFactory, $filter) {
+function FoodsController($scope, $timeout, FoodsFactory, $filter, $document) {
     FoodsFactory.then(function (Foods) {
         $scope.Foods = Foods;
     });
@@ -59,12 +59,19 @@ function FoodsController($scope, $timeout, FoodsFactory, $filter) {
     $scope.foodTableViewModel = new TableViewModel(new TableModel());
     $scope.personalFoodTableViewModel = new TableViewModel(new TableModel());
 
+    $document.bind("keydown", function ($event) {
+        if ($event.keyCode == 40)
+            $scope.foodTableViewModel.down();
+        else if ($event.keyCode == 38)
+            $scope.foodTableViewModel.up();
+        $scope.$apply();
+    });
+
     $scope.searchBarKeypress = function ($event) {
         $timeout(function () {
-            if ($event.keyCode == 40)
-                $scope.foodTableViewModel.down();
-            else if ($event.keyCode == 38)
-                $scope.foodTableViewModel.up();
+            if ($event.keyCode == 13) {
+                $scope.giveWeightInputFocus = true;
+            }
         })
     }
 
@@ -72,7 +79,7 @@ function FoodsController($scope, $timeout, FoodsFactory, $filter) {
         $timeout(function () {
             // Filtering in controller instead of view
             filteredFoods = $filter('filter')($scope.Foods, {name: $scope.searchText});
-            filteredFoods = $filter('limitTo')(filteredFoods, 30);
+            filteredFoods = $filter('limitTo')(filteredFoods, 100);
 
             $scope.foodTableViewModel.setData(filteredFoods);
         });
@@ -87,8 +94,13 @@ function FoodsController($scope, $timeout, FoodsFactory, $filter) {
             $scope.personalFoodTableViewModel.tableModel.data.push(FoodCopy);
             $scope.searchText = "";
             $scope.weight = "";
-            $scope.giveSearchBarFocus=true;
+            $scope.giveSearchBarFocus = true;
         }
+    }
+
+    $scope.deleteFood = function (food) {
+        var tableModel = $scope.personalFoodTableViewModel.getModel();
+        tableModel.data.splice(tableModel.data.indexOf(food), 1);
     }
 }
 
@@ -102,81 +114,93 @@ function changeWeight(Food, newWeight) {
 }
 
 
+/**
+ * TableViewModel
+ * @param tableModel
+ * @constructor
+ */
+
 function TableViewModel(tableModel) {
     this.index = 0;
     this.rowCount = 0;
     this.data = [];
     this.tableModel = tableModel;
-
-    TableViewModel.prototype.getModel = function () {
-        return this.tableModel;
-    }
-
-    TableViewModel.prototype.up = function () {
-        if (this.index > 0)
-            this.index--;
-    }
-    TableViewModel.prototype.down = function () {
-        if (this.index < this.rowCount)
-            this.index++;
-    }
-    TableViewModel.prototype.getIndex = function () {
-        return this.index;
-    }
-    TableViewModel.prototype.reset = function () {
-        this.index = 0;
-    }
-
-    TableViewModel.prototype.setData = function (data) {
-        this.getModel().setData(data);
-        this.rowCount = data.length - 1;
-        this.reset();
-    }
-
-    TableViewModel.prototype.isRowSelected = function (rowIndex) {
-        return (this.index == rowIndex);
-    }
-
-    TableViewModel.prototype.getSelectedRow = function () {
-        if (this.getModel().data.length > 0)
-            return this.getModel().data[this.index];
-        else
-            return null;
-    }
 }
 
+TableViewModel.prototype.getModel = function () {
+    return this.tableModel;
+}
+
+TableViewModel.prototype.up = function () {
+    if (this.index > 0)
+        this.index--;
+}
+TableViewModel.prototype.down = function () {
+    if (this.index < this.rowCount)
+        this.index++;
+}
+TableViewModel.prototype.getIndex = function () {
+    return this.index;
+}
+TableViewModel.prototype.reset = function () {
+    this.index = 0;
+}
+
+TableViewModel.prototype.setData = function (data) {
+    this.getModel().setData(data);
+    this.rowCount = data.length - 1;
+    this.reset();
+}
+
+TableViewModel.prototype.isRowSelected = function (rowIndex) {
+    return (this.index == rowIndex);
+}
+
+TableViewModel.prototype.getSelectedRow = function () {
+    if (this.getModel().data.length > 0)
+        return this.getModel().data[this.index];
+    else
+        return null;
+}
+
+
+/**
+ * TableModel
+ * @constructor
+ */
 function TableModel() {
     this.data = [];
+}
 
-    TableModel.prototype.columnSum = function (columnIndex) {
-        columnSum = 0;
-        angular.forEach(this.data, function (value, key) {
-            columnSum += value[columnIndex];
-        });
-        asdas
-        return columnSum;
-    }
+TableModel.prototype.columnSum = function (columnIndex) {
+    columnSum = 0;
+    angular.forEach(this.data, function (value, key) {
+        columnSum += value[columnIndex];
+    });
+    return columnSum;
+}
 
-    TableModel.prototype.setData = function (data) {
-        this.data = data;
-    }
+TableModel.prototype.setData = function (data) {
+    this.data = data;
+}
 
-    TableModel.prototype.getColumnSum = function (propertyName) {
-        columnSum = 0;
-        angular.forEach(this.data, function (value, key) {
-            columnSum += parseFloat(value[propertyName]);
-        });
-        return columnSum;
-    }
+TableModel.prototype.getColumnSum = function (propertyName) {
+    columnSum = 0;
+    angular.forEach(this.data, function (value, key) {
+        columnSum += parseFloat(value[propertyName]);
+    });
+    return columnSum;
 }
 
 // TODO: Review snippet
-app.directive('mtFocus', function() {
-    return function($scope, element, attrs) {
+app.directive('mtFocus', function () {
+    return function ($scope, element, attrs) {
         $scope.$watch(attrs.mtFocus,
-        function(newValue) {
-            newValue && element.focus();
-            $scope.giveSearchBarFocus=false;
-        }, true);
+            function (newValue) {
+                newValue && element.focus();
+                $scope[attrs.mtFocus] = false;
+            }, true);
     };
 })
+
+

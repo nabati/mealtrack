@@ -1,16 +1,20 @@
+<!DOCTYPE html>
 <html>
 <head>
 
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
 </head>
-<body>
+<body ng-app="app">
 
-<div class="container" ng-app="app">
+<div class="container" ng-controller="FoodsController">
+    <h1>MealTrack</h1>
 
-    <div ng-controller="FoodsController">
+    <div >
 
         <div class="row">
             <form ng-submit="addFoodToList()">
@@ -20,7 +24,8 @@
                            mt-focus="giveSearchBarFocus"/>
                 </div>
                 <div class="col-md-2">
-                    <input type="number" ng-model="weight" class="form-control"
+                    <input type="text" ng-model="weight" class="form-control"
+                           mt-focus="giveWeightInputFocus"
                            placeholder="100"/>
                 </div>
                 <div class="col-md-1">
@@ -31,7 +36,7 @@
 
 
         <div class="row">
-            <div class="col-xs-6"><h2>Referenslista</h2>
+            <div class="col-xs-6" style="overflow:auto;"><h2>Referenslista</h2>
                 <table class="table table-condensed">
                     <thead>
                     <tr>
@@ -45,8 +50,8 @@
                     </thead>
                     <tbody>
                     <tr ng-repeat="food in foodTableViewModel.tableModel.data"
-                        ng-class="{'alert-info':foodTableViewModel.isRowSelected($index)}">
-                        <td>{{food.name}}</td>
+                        ng-class="{'success':foodTableViewModel.isRowSelected($index)}">
+                        <td class="">{{food.name}}</td>
                         <td>{{food.weight | number:1}}</td>
                         <td>{{food.kcal | number:1}}</td>
                         <td>{{food.protein | number:1}}</td>
@@ -78,6 +83,10 @@
                         <td>{{food.protein | number:1}}</td>
                         <td>{{food.fat | number:1}}</td>
                         <td>{{food.carbs | number:1}}</td>
+                        <td>
+                            <a href="#" ng-click="deleteFood(food)"><span class="glyphicon glyphicon-remove"/></a>
+
+                        </td>
                     </tr>
                     </tbody>
                     <tfoot>
@@ -98,6 +107,7 @@
                         <td>
                             {{personalFoodTableViewModel.tableModel.getColumnSum("carbs") | number:1}}
                         </td>
+                        <td></td>
                     </tr>
                     </tfoot>
                 </table>
